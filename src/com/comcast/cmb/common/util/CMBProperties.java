@@ -84,9 +84,11 @@ public class CMBProperties {
 	private final String cnsUserName;
 	private final String cnsUserPassword;
 	private final String cnsUserAccessKey;
-
 	private final String cnsUserAccessSecret;
-	
+    private final String cnsDefaultUserAccessKey;
+    private final String cnsDefaultUserAccessSecret;
+    private final String cnsDefaultUserId;
+
 	private final String awsAccessKey;
 	private final String awsAccessSecret;
 	
@@ -253,7 +255,10 @@ public class CMBProperties {
 			cnsUserPassword = props.getProperty("cmb.cns.user.password", "cns_internal");
 			cnsUserAccessKey = props.getProperty("cmb.cns.user.access.key", null);
 			cnsUserAccessSecret = props.getProperty("cmb.cns.user.access.secret", null);
-			
+            cnsDefaultUserAccessKey = props.getProperty("cmb.cns.user.default.access.key", null);
+            cnsDefaultUserAccessSecret = props.getProperty("cmb.cns.user.default.access.secret", null);
+            cnsDefaultUserId = props.getProperty("cmb.cns.user.default.user.id", null);
+
 			awsAccessKey = props.getProperty("aws.access.key");
 			awsAccessSecret = props.getProperty("aws.access.secret");
 
@@ -795,8 +800,20 @@ public class CMBProperties {
 	public String getCNSUserAccessSecret() {
 		return cnsUserAccessSecret;
 	}
-	
-	public int getCMBWorkerPoolSize() {
+
+    public String getCnsDefaultUserAccessKey() {
+        return cnsDefaultUserAccessKey;
+    }
+
+    public String getCnsDefaultUserAccessSecret() {
+        return cnsDefaultUserAccessSecret;
+    }
+
+    public String getCnsDefaultUserId() {
+        return cnsDefaultUserId;
+    }
+
+    public int getCMBWorkerPoolSize() {
 		return cmbWorkerPoolSize;
 	}
 	

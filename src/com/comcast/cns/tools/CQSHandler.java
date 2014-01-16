@@ -58,7 +58,7 @@ public class CQSHandler {
     		return;
     	}
     	
-		if (CMBProperties.getInstance().getCNSUserAccessKey() != null && CMBProperties.getInstance().getCNSUserAccessKey() != null) {
+		if (CMBProperties.getInstance().getCNSUserAccessKey() != null && CMBProperties.getInstance().getCNSUserAccessSecret() != null) {
 			
 		    awsCredentials = new BasicAWSCredentials(CMBProperties.getInstance().getCNSUserAccessKey(), CMBProperties.getInstance().getCNSUserAccessSecret());
 

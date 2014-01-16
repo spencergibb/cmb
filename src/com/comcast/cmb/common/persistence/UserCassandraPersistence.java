@@ -56,18 +56,24 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 		usersTemplate = new ThriftColumnFamilyTemplate<String, String>(keyspaces.get(CMBProperties.getInstance().getWriteConsistencyLevel()), COLUMN_FAMILY_USERS, StringSerializer.get(), StringSerializer.get());
 	}
 
-	@Override
 	public User createUser(String userName, String password) throws PersistenceException {
 		return this.createUser(userName, password, false);
 	}
 	
-	@Override
 	public User createUser(String userName, String password, Boolean isAdmin) throws PersistenceException {
 		return this.createUser(userName, password, isAdmin, "");
 	}
-	
-	@Override
-	public User createUser(String userName, String password, Boolean isAdmin, String description) throws PersistenceException {
+
+    public User createUser(String userName, String password, Boolean isAdmin, String description) throws PersistenceException {
+        return this.createUser(null, userName, password, isAdmin, description, null, null);
+    }
+
+    private String generateUserId() {
+        return Long.toString(System.currentTimeMillis()).substring(1);
+    }
+
+    private User createUser(String userId, String userName, String password, Boolean isAdmin, String description, String accessKey, String accessSecret ) throws PersistenceException
+    {
 		User user = null;
 		
 		if (userName == null || userName.length() < 0 || userName.length() > 25) {
@@ -84,14 +90,21 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 			logger.error("event=create_user error_code=user_already_exists user_name=" + userName);
 			throw new PersistenceException(CQSErrorCodes.InvalidRequest, "User with user name " + userName + " already exists");
 		}
+
+        if (accessKey == null) {
+            accessKey = AuthUtil.generateRandomAccessKey();
+        }
+
+        if (accessSecret == null) {
+            accessSecret = AuthUtil.generateRandomAccessSecret();
+        }
+
+        if (userId == null) {
+            userId = generateUserId();
+        }
 		
 		try {
-
-			String userId = Long.toString(System.currentTimeMillis()).substring(1);
-            
             String hashedPassword = AuthUtil.hashPassword(password);
-            String accessSecret = AuthUtil.generateRandomAccessSecret();
-            String accessKey = AuthUtil.generateRandomAccessKey();
 
 			user = new User(userId, userName, hashedPassword, accessKey, accessSecret, isAdmin, description);
 			
@@ -116,22 +129,18 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 		
 	}
 	
-	@Override
 	public void deleteUser(String userName) throws PersistenceException {
 		delete(usersTemplate, userName, null);
 	}
 	
-	@Override
 	public long getNumUserQueues(String userId) throws PersistenceException {
 		return PersistenceFactory.getQueuePersistence().getNumberOfQueuesByUser(userId);
 	}
 		
-	@Override
 	public long getNumUserTopics(String userId) throws PersistenceException {
 		return PersistenceFactory.getTopicPersistence().getNumberOfTopicsByUser(userId);
 	}
 
-	@Override
 	public User getUserById(String userId) throws PersistenceException {
 
 		List<Row<String, String, String>> rows = readNextNRows(COLUMN_FAMILY_USERS, null, USER_ID, userId, 10, 10, new StringSerializer(), new StringSerializer(), new StringSerializer(), CMBProperties.getInstance().getReadConsistencyLevel());
@@ -144,7 +153,6 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 		return user;
 	}
 
-	@Override
 	public User getUserByName(String userName) throws PersistenceException {
 
 		ColumnSlice<String, String> slice = readColumnSlice(COLUMN_FAMILY_USERS, userName, 10, StringSerializer.get(), StringSerializer.get(), StringSerializer.get(), CMBProperties.getInstance().getReadConsistencyLevel());
@@ -157,7 +165,6 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 	}
 
 
-	@Override
 	public User getUserByAccessKey(String accessKey) throws PersistenceException {
 
 		List<Row<String, String, String>> rows = readNextNRows(COLUMN_FAMILY_USERS, null, ACCESS_KEY, accessKey, 10, 10, new StringSerializer(), new StringSerializer(), new StringSerializer(), CMBProperties.getInstance().getReadConsistencyLevel());
@@ -253,9 +260,12 @@ public class UserCassandraPersistence extends CassandraPersistence implements IU
 		return user;
 	}
 
-	@Override
 	public User createDefaultUser() throws PersistenceException {
-		return createUser(CMBProperties.getInstance().getCNSUserName(), CMBProperties.getInstance().getCNSUserPassword(), true);
+		return createUser(CMBProperties.getInstance().getCnsDefaultUserId(),
+                CMBProperties.getInstance().getCNSUserName(),
+                CMBProperties.getInstance().getCNSUserPassword(),
+                true, "", CMBProperties.getInstance().getCnsDefaultUserAccessKey(),
+                CMBProperties.getInstance().getCnsDefaultUserAccessSecret());
 	}
 
 }

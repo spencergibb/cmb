@@ -242,8 +242,10 @@ public class CMBPolicy {
         // parse content
         
         this.statements = new ArrayList<CMBStatement>();
-        
-        id = json.getString("Id");
+
+        if (json.has("Id")) {
+            id = json.getString("Id");
+        }
         version = json.getString("Version");
 
         for (int i = 0; i < stmts.length(); i++) {
