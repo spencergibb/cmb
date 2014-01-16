@@ -134,6 +134,7 @@ public class CMBProperties {
     private final int maxReceiveMessageCount;
     private final int maxVisibilityTO;
     private final int maxDelaySeconds;
+    private final boolean useInternalUrlResolutionForArn;
     
     private final int userCacheExpiring;
     private final int userCacheSizeLimit;
@@ -317,6 +318,7 @@ public class CMBProperties {
             maxReceiveMessageCount = Integer.parseInt(props.getProperty("cmb.cqs.maxReceiveMessageCount", "10"));
             maxVisibilityTO = Integer.parseInt(props.getProperty("cmb.cqs.maxVisibilityTO", "43200"));
             maxDelaySeconds=Integer.parseInt(props.getProperty("cmb.cqs.maxDelaySeconds", "900"));
+            useInternalUrlResolutionForArn = Boolean.parseBoolean(props.getProperty("cmb.cqs.useInternalUrlResolutionForArn", "false"));
             
             cmbCommonKeyspace = props.getProperty("cmb.common.keyspace", "CMB");
             cmbCQSKeyspace = props.getProperty("cmb.cqs.keyspace", "CQS");
@@ -532,6 +534,10 @@ public class CMBProperties {
 	public int getCQSMaxVisibilityTimeOut() {
 		return maxVisibilityTO;
 	}
+
+    public boolean getCQSUseInternalUrlResolutionForArn() {
+        return useInternalUrlResolutionForArn;
+    }
 	
 	public int getUserCacheExpiring() {
 	    return userCacheExpiring;

@@ -55,6 +55,8 @@ public class SQSEndpointPublisher  extends AbstractEndpointPublisher {
 		
 		if (com.comcast.cqs.util.Util.isValidQueueUrl(endpoint)) {
 			url = endpoint;
+        } else if (CMBProperties.getInstance().getCQSUseInternalUrlResolutionForArn()) {
+            url = com.comcast.cqs.util.Util.getAbsoluteQueueUrlForArn(endpoint);
 		} else {
 			url = com.comcast.cqs.util.Util.getAbsoluteAWSQueueUrlForArn(endpoint);
 		}
